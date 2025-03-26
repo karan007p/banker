@@ -1,0 +1,139 @@
+#include<stdio.h> 
+#include<stdlib.h> 
+#include<string.h> 
+#define MAX_BLOCKS 100 
+#define MAX_FILES 10 
+typedef struct { 
+char name[20]; 
+int start; 
+int length; 
+} File; 
+int bitVector[MAX_BLOCKS]; 
+File directory[MAX_FILES];
+int totalBlocks, fileCount = 0; 
+void initializeDisk() { 
+    for (int i = 0; i < totalBlocks; i++) 
+        bitVector[i] = rand() % 2;  
+} 
+void showBitVector(){ 
+    printf("\nBit Vector:\n"); 
+    for(int i=0;i<totalBlocks;i++) 
+        printf("%d",bitVector[i]); 
+    printf("\n"); 
+} 
+void showDirectory(){ 
+    if (fileCount==0){ 
+        printf("\nDirectory is empty.\n"); 
+        return; 
+    } 
+    printf("\nFile Directory:\n"); 
+    printf("Name\tStart\tLength\n"); 
+    for (int i=0;i<fileCount;i++) 
+        printf("%s\t%d\t%d\n", directory[i].name, directory[i].start, 
+directory[i].length); 
+} 
+void createFile(){ 
+    if (fileCount>=MAX_FILES){ 
+        printf("\nDirectory is full! Cannot create more files.\n"); 
+        return; 
+    } 
+ 
+    char fileName[20]; 
+    int fileSize, i, start = -1, count = 0; 
+ 
+    printf("\nEnter file name: "); 
+    scanf("%s", fileName); 
+    printf("Enter number of blocks required: "); 
+    scanf("%d", &fileSize);  
+    for (i = 0; i < totalBlocks; i++) { 
+        if (bitVector[i] == 0) { 
+            if (start == -1) start = i; 
+            count++; 
+            if (count == fileSize) break; 
+        } else { 
+            start = -1; 
+            count = 0; 
+        } 
+    } 
+ 
+    if (count < fileSize) { 
+        printf("\nNot enough contiguous space available.\n"); 
+        return; 
+    } 
+ 
+   
+    for (i = start; i < start + fileSize; i++) 
+        bitVector[i] = 1; 
+ 
+   
+    strcpy(directory[fileCount].name, fileName); 
+    directory[fileCount].start = start; 
+    directory[fileCount].length = fileSize; 
+    fileCount++; 
+ 
+    printf("\nFile '%s' created successfully from block %d to %d.\n", fileName, 
+start, start + fileSize - 1); 
+} 
+void deleteFile() { 
+    char fileName[20]; 
+    int i, found = -1; 
+ 
+    printf("\nEnter file name to delete: "); 
+    scanf("%s", fileName); 
+ 
+   
+    for (i = 0; i < fileCount; i++) { 
+        if (strcmp(directory[i].name, fileName) == 0) { 
+            found = i; 
+            break; 
+        } 
+    } 
+ 
+    if (found == -1) { 
+        printf("\nFile not found!\n"); 
+        return; 
+    } 
+ 
+    
+    for (i = directory[found].start; i < directory[found].start + 
+directory[found].length; i++) 
+        bitVector[i] = 0; 
+ 
+   
+    for (i = found; i < fileCount - 1; i++) 
+        directory[i] = directory[i + 1]; 
+ 
+    fileCount--; 
+ 
+    printf("\nFile '%s' deleted successfully.\n", fileName); 
+} 
+ 
+
+int main() { 
+    int choice; 
+     
+    printf("Enter total number of disk blocks: "); 
+    scanf("%d", &totalBlocks); 
+     
+    initializeDisk(); 
+ 
+    do { 
+        printf("\nMENU:\n"); 
+        printf("1. Show Bit Vector\n"); 
+        printf("2. Create New File\n"); 
+        printf("3. Show Directory\n"); 
+        printf("4. Delete File\n"); 
+        printf("5. Exit\n"); 
+        printf("Enter choice: "); 
+        scanf("%d", &choice); 
+ 
+        switch (choice) { 
+            case 1: showBitVector(); break; 
+            case 2: createFile(); break; 
+            case 3: showDirectory(); break; 
+            case 4: deleteFile(); break; 
+            case 5: printf("Exiting program...\n"); break; 
+            default: printf("Invalid choice! Try again.\n"); 
+        } 
+    } while (choice != 5); 
+    return 0; 
