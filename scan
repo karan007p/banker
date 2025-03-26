@@ -1,0 +1,45 @@
+#include<stdio.h> 
+#include<stdlib.h> 
+void scan(int requests[],int n,int head,int disk_size){ 
+int seek_time=0; 
+requests[n]=0;  
+requests[n+1]=disk_size;  
+n+=2; 
+    for(int i=0;i<n-1;i++) 
+        for(int j=i+1;j<n;j++) 
+            if(requests[i]>requests[j]){ 
+                int temp=requests[i]; 
+                requests[i]=requests[j]; 
+                requests[j]=temp; 
+            } 
+    int index=0; 
+    while(requests[index]<head)index++;  
+    printf("\nSequence of access:%d",head); 
+    for(int i=index;i<n;i++){ 
+        seek_time+=abs(head-requests[i]); 
+        head=requests[i]; 
+        printf("-> %d",head); 
+    } 
+    for(int i =index-1;i>=0;i--){ 
+        seek_time+=abs(head-requests[i]); 
+        head=requests[i]; 
+        printf("->%d",head); 
+    } 
+    printf("\nTotal Seek Time:%d\n",seek_time); 
+} 
+int main() { 
+    int n,head,disk_size; 
+    printf("Enter number of disk requests:"); 
+    scanf("%d",&n); 
+    int requests[n+2]; 
+    printf("Enter disk requests:"); 
+    for(int i=0;i<n;i++) 
+        scanf("%d",&requests[i]); 
+    printf("Enter initial head position:"); 
+    scanf("%d",&head); 
+    printf("Enter disk size:"); 
+    scanf("%d",&disk_size); 
+ 
+    scan(requests,n,head,disk_size); 
+    return 0; 
+} 
